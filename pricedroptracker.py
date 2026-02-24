@@ -314,25 +314,25 @@ if not df.empty:
                 badge = "💎 BEST DEAL" if row.is_best_deal else f"🔥 {row.real_discount}% OFF"
                 img_url = row.image_url if pd.notna(row.image_url) else "https://via.placeholder.com/150?text=No+Image"
                 
-                # HTML Card
-                st.markdown(f"""
-                <div style="background-color: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155;">
-                    <div style="color: #10b981; font-weight: bold; font-size: 12px; margin-bottom: 5px;">{badge}</div>
-                    <div style="text-align: center; margin-bottom: 10px;">
-                        <img src="{img_url}" style="height: 120px; object-fit: contain;">
-                    </div>
-                    <div style="font-size: 14px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{row.title}">{row.title}</div>
-                    <div style="color: #94a3b8; font-size: 11px; margin-bottom: 10px;">ID: {row.product_id}</div>
-                    
-                    <div style="display: flex; justify-content: space-between; align-items: end;">
-                        <div>
-                            <span style="text-decoration: line-through; color: #64748b; font-size: 12px;">₹{row.highest_price}</span>
-                            <span style="color: white; font-size: 20px; font-weight: bold; margin-left: 5px;">₹{row.latest_price}</span>
-                        </div>
-                        <a href="{row.deal_link}" target="_blank" style="background-color: #4f46e5; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold;">BUY ↗</a>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                # HTML Card (Unindented so markdown parser does not treat it as a code block)
+                html_card = f"""
+<div style="background-color: #1e293b; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #334155;">
+<div style="color: #10b981; font-weight: bold; font-size: 12px; margin-bottom: 5px;">{badge}</div>
+<div style="text-align: center; margin-bottom: 10px;">
+<img src="{img_url}" style="height: 120px; object-fit: contain;">
+</div>
+<div style="font-size: 14px; font-weight: 600; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{row.title}">{row.title}</div>
+<div style="color: #94a3b8; font-size: 11px; margin-bottom: 10px;">ID: {row.product_id}</div>
+<div style="display: flex; justify-content: space-between; align-items: end;">
+<div>
+<span style="text-decoration: line-through; color: #64748b; font-size: 12px;">₹{row.highest_price}</span>
+<span style="color: white; font-size: 20px; font-weight: bold; margin-left: 5px;">₹{row.latest_price}</span>
+</div>
+<a href="{row.deal_link}" target="_blank" style="background-color: #4f46e5; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; font-size: 12px; font-weight: bold;">BUY ↗</a>
+</div>
+</div>
+"""
+                st.markdown(html_card, unsafe_allow_html=True)
 
     with tab2:
         st.markdown("### Search & Filter All Monitored Products")
@@ -343,7 +343,7 @@ if not df.empty:
         # Allow Streamlit interactive dataframe
         st.dataframe(
             display_df,
-            use_container_width=True,
+            width="stretch",
             column_config={
                 "deal_link": st.column_config.LinkColumn("Purchase Link", display_text="View Deal ↗"),
                 "real_discount": st.column_config.NumberColumn("Discount %", format="%.1f%%"),
@@ -372,11 +372,11 @@ if not df.empty:
                 prod_hist = prod_hist.sort_values('Date & Time')
                 prod_hist.set_index('Date & Time', inplace=True)
                 
-                st.line_chart(prod_hist['price'], use_container_width=True)
+                st.line_chart(prod_hist['price'], width="stretch")
                 
                 # Show tabular history
                 st.markdown("#### Detailed Logs for this Product")
-                st.dataframe(prod_hist[['price']].sort_index(ascending=False), use_container_width=True)
+                st.dataframe(prod_hist[['price']].sort_index(ascending=False), width="stretch")
             else:
                 st.info("No recorded history changes for this item yet.")
 
