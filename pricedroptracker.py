@@ -32,17 +32,24 @@ TRACK_CATEGORY_IDS = {
     "2962", "1159", "2817", "641", "606"
 }
 
-# In-memory logging for Streamlit UI
-if 'scraper_logs' not in st.session_state:
-    st.session_state.scraper_logs = []
+# ==========================
+# LOGGING (THREAD-SAFE FOR STREAMLIT)
+# ==========================
+@st.cache_resource
+def get_log_buffer():
+    # This creates a persistent list that lives across Streamlit reruns 
+    # AND is accessible by background threads.
+    return []
+
+SCRAPER_LOGS = get_log_buffer()
 
 def log(msg):
     timestamp = datetime.datetime.now().strftime("%H:%M:%S")
     entry = f"[{timestamp}] {msg}"
     print(entry)
-    st.session_state.scraper_logs.insert(0, entry)
-    if len(st.session_state.scraper_logs) > 100:
-        st.session_state.scraper_logs.pop()
+    SCRAPER_LOGS.insert(0, entry)
+    if len(SCRAPER_LOGS) > 100:
+        SCRAPER_LOGS.pop()
 
 def send_telegram_alert(message):
     if not TELEGRAM_BOT_TOKEN or "YOUR_BOT" in TELEGRAM_BOT_TOKEN:
@@ -375,12 +382,12 @@ if not df.empty:
 
     with tab4:
         st.markdown("### Live Scraper Logs")
-        log_text = "\n".join(st.session_state.scraper_logs)
+        log_text = "\n".join(SCRAPER_LOGS)
         st.text_area("Console Output", log_text, height=400)
 
 else:
     st.info("⏳ Database is currently empty or loading. The scraper is running in the background. Please wait a moment and refresh.")
-    if st.session_state.scraper_logs:
+    if SCRAPER_LOGS:
         st.markdown("### Live Logs:")
-        for l in st.session_state.scraper_logs:
+        for l in SCRAPER_LOGS:
             st.code(l)
