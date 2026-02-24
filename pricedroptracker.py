@@ -343,7 +343,7 @@ if not df.empty:
         # Allow Streamlit interactive dataframe
         st.dataframe(
             display_df,
-            width=True,
+            use_container_width=True,
             column_config={
                 "deal_link": st.column_config.LinkColumn("Purchase Link", display_text="View Deal ↗"),
                 "real_discount": st.column_config.NumberColumn("Discount %", format="%.1f%%"),
@@ -372,11 +372,11 @@ if not df.empty:
                 prod_hist = prod_hist.sort_values('Date & Time')
                 prod_hist.set_index('Date & Time', inplace=True)
                 
-                st.line_chart(prod_hist['price'], width=True)
+                st.line_chart(prod_hist['price'], use_container_width=True)
                 
                 # Show tabular history
                 st.markdown("#### Detailed Logs for this Product")
-                st.dataframe(prod_hist[['price']].sort_index(ascending=False), width=True)
+                st.dataframe(prod_hist[['price']].sort_index(ascending=False), use_container_width=True)
             else:
                 st.info("No recorded history changes for this item yet.")
 
@@ -391,4 +391,3 @@ else:
         st.markdown("### Live Logs:")
         for l in SCRAPER_LOGS:
             st.code(l)
-
